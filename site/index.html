@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#172521" />
+    <meta
+      name="description"
+      content="Explore xBAKE: an interactive, simulated bakery quality-control dashboard. Inspect products, tune classification rules, and export sample data."
+    />
+    <title>xBAKE — Interactive demo</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="engine.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="#overview" aria-label="xBAKE overview"
+        ><span class="brand-mark">x</span
+        ><span>xBAKE<small>VISION · QUALITY · CONTROL</small></span></a
+      >
+      <div class="workspace">
+        <span class="workspace-icon">B</span>
+        <div>Bakery workspace<small>Demo production line</small></div>
+        <span class="workspace-dot"></span>
+      </div>
+      <p class="nav-caption">WORKSPACE</p>
+      <nav aria-label="Dashboard sections">
+        <a class="nav-link active" href="#overview"
+          ><span aria-hidden="true">▦</span> Overview</a
+        >
+        <a class="nav-link" href="#inspections"
+          ><span aria-hidden="true">≡</span> Inspection log
+          <span class="nav-count" id="navCount">128</span></a
+        >
+        <a class="nav-link" href="#calibration"
+          ><span aria-hidden="true">☷</span> Calibration</a
+        >
+        <button class="nav-link" id="aboutButton">
+          <span aria-hidden="true">ⓘ</span> About this demo
+        </button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="edge-status">
+          <span class="status-dot"></span> Browser simulation<small
+            >No camera or hardware connected</small
+          >
+        </div>
+        <a
+          href="https://github.com/KOKUTBON/xBAKE"
+          target="_blank"
+          rel="noopener noreferrer"
+          >View source on GitHub <span aria-hidden="true">↗</span></a
+        ><span class="version">xBAKE / Open-source quality control</span>
+      </div>
+    </aside>
+
+    <main id="overview">
+      <header class="topbar">
+        <div class="breadcrumbs">
+          Workspace <span>/</span> <strong>Overview</strong>
+        </div>
+        <div class="top-actions">
+          <span class="demo-badge">INTERACTIVE DEMO</span
+          ><button
+            class="icon-button"
+            id="themeButton"
+            aria-label="Switch to dark theme"
+            title="Switch theme"
+          >
+            ◐</button
+          ><span class="avatar" aria-label="Demo workspace">B</span>
+        </div>
+      </header>
+      <div class="content">
+        <section class="page-heading">
+          <div>
+            <div class="eyebrow">PRODUCTION MONITORING</div>
+            <h1>A better bake, every batch.</h1>
+            <p>
+              Your line at a glance. Every product inspected, every detail
+              counted.
+            </p>
+          </div>
+          <div class="line-select">
+            <span class="status-dot"></span> Line 01
+            <span class="muted">/ Flatbread</span>
+          </div>
+        </section>
+        <div class="demo-notice">
+          <span class="notice-icon" aria-hidden="true">✦</span>
+          <p>
+            <strong>A little taste of xBAKE.</strong> Synthetic products and
+            sample data. Try a scenario, adjust the rules, and watch the line
+            respond.
+          </p>
+          <button id="noticeAbout" aria-label="Learn about this demo">
+            Learn more <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+
+        <section class="metrics" aria-label="Session metrics">
+          <article class="metric">
+            <div class="metric-label">
+              Products inspected <span aria-hidden="true">▧</span>
+            </div>
+            <div class="metric-value" id="total">128</div>
+            <div class="metric-foot">
+              <span class="mini-dot"></span>
+              <span id="sessionTime">Demo session · 00:00</span>
+            </div>
+            <svg class="sparkline" viewBox="0 0 120 32" aria-hidden="true">
+              <path d="M0 29L15 26L27 28L41 19L54 21L68 11L83 14L99 4L120 2" />
+            </svg>
+          </article>
+          <article class="metric">
+            <div class="metric-label">
+              Good product yield <span class="good" aria-hidden="true">✓</span>
+            </div>
+            <div class="metric-value">
+              <span id="yield">87.5</span><small>%</small>
+            </div>
+            <div class="metric-foot">
+              <span class="good" id="goodCount">112 passed</span
+              ><span>of inspected products</span>
+            </div>
+            <div class="mini-progress"><span id="yieldBar"></span></div>
+          </article>
+          <article class="metric">
+            <div class="metric-label">
+              Rejected products <span class="burnt" aria-hidden="true">⊘</span>
+            </div>
+            <div class="metric-value" id="rejected">16</div>
+            <div class="metric-foot">
+              <span class="burnt" id="defectRate">12.5% defect rate</span
+              ><span>simulated rejects</span>
+            </div>
+            <div class="reject-bars" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+              ><i></i>
+            </div>
+          </article>
+          <article class="metric">
+            <div class="metric-label">
+              Line throughput <span aria-hidden="true">↗</span>
+            </div>
+            <div class="metric-value">
+              <span id="throughput">30</span><small>/ min</small>
+            </div>
+            <div class="metric-foot">
+              <span class="status-dot" id="runningDot"></span
+              ><span id="lineStatus">Line running</span
+              ><span class="metric-right">25 FPS target</span>
+            </div>
+            <svg
+              class="sparkline neutral"
+              viewBox="0 0 120 32"
+              aria-hidden="true"
+            >
+              <path d="M0 22L15 22L27 15L41 18L54 10L68 12L83 8L99 12L120 9" />
+            </svg>
+          </article>
+        </section>
+
+        <div class="dashboard-grid">
+          <section class="panel inspection-panel" aria-labelledby="liveTitle">
+            <div class="panel-heading">
+              <div>
+                <h2 id="liveTitle">
+                  Live inspection
+                  <span class="live-label" id="liveLabel"
+                    ><span class="status-dot"></span> LIVE DEMO</span
+                  >
+                </h2>
+                <p>Synthetic conveyor · Camera 01 · 960 × 540</p>
+              </div>
+              <div class="segmented" aria-label="Inspection view">
+                <button
+                  class="selected"
+                  data-view="annotated"
+                  aria-pressed="true"
+                >
+                  Annotated</button
+                ><button data-view="mask" aria-pressed="false">Mask</button>
+              </div>
+            </div>
+            <div class="stream" id="streamWrap">
+              <canvas
+                id="conveyor"
+                width="960"
+                height="540"
+                aria-label="Animated synthetic flatbreads traveling through a simulated inspection and rejection zone"
+              ></canvas>
+              <div class="stream-top">
+                <span
+                  ><i class="record-dot"></i> CAM 01
+                  <span class="stream-divider">|</span>
+                  <span id="streamClock">00:00:00</span></span
+                ><span>SIMULATED FEED</span>
+              </div>
+              <div class="stream-bottom">
+                <span
+                  ><span class="status-dot"></span>
+                  <span id="feedStatus">Processing frames</span></span
+                ><button
+                  id="expandButton"
+                  aria-label="Expand inspection view"
+                  title="Expand inspection view"
+                >
+                  ⛶
+                </button>
+              </div>
+              <div class="pause-overlay" id="pauseOverlay" hidden>
+                Simulation paused
+              </div>
+            </div>
+            <div class="stream-controls">
+              <div class="control-buttons">
+                <button id="pauseButton" class="primary">
+                  <span aria-hidden="true">Ⅱ</span> Pause line</button
+                ><button class="secondary" id="saveFrame">↓ Save frame</button
+                ><button
+                  class="secondary icon-button"
+                  id="testRejector"
+                  aria-label="Test simulated rejector"
+                  title="Test simulated rejector"
+                >
+                  ϟ
+                </button>
+              </div>
+              <label class="scenario-select"
+                >Scenario
+                <select id="scenario">
+                  <option value="balanced">Balanced batch</option>
+                  <option value="burnt">Overbaked batch</option>
+                  <option value="undercooked">Underbaked batch</option>
+                  <option value="deformed">Shape defects</option>
+                </select></label
+              >
+            </div>
+            <div class="legend">
+              <span><i class="good-bg"></i> Good</span
+              ><span><i class="burnt-bg"></i> Burnt</span
+              ><span><i class="raw-bg"></i> Undercooked</span
+              ><span><i class="shape-bg"></i> Deformed</span
+              ><span class="legend-note">Rule-based classification</span>
+            </div>
+          </section>
+
+          <section
+            class="panel breakdown-panel"
+            aria-labelledby="breakdownTitle"
+          >
+            <div class="panel-heading">
+              <div>
+                <h2 id="breakdownTitle">Batch quality</h2>
+                <p>Session product distribution</p>
+              </div>
+              <span class="subtle-icon" aria-hidden="true">◔</span>
+            </div>
+            <div class="donut-wrap">
+              <div
+                class="donut"
+                id="donut"
+                role="img"
+                aria-label="Product distribution"
+              >
+                <div class="donut-hole">
+                  <strong id="donutYield">87.5%</strong
+                  ><span>good products</span>
+                </div>
+              </div>
+            </div>
+            <div class="distribution" id="distribution"></div>
+            <div class="quality-note">
+              <span aria-hidden="true">✓</span>
+              <div>
+                Every item has a story.<small
+                  >Select an inspection to explore its features.</small
+                >
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="panel log-panel"
+            id="inspections"
+            aria-labelledby="logTitle"
+          >
+            <div class="panel-heading">
+              <div>
+                <h2 id="logTitle">
+                  Inspection log
+                  <span class="count-badge" id="logCount">128</span>
+                </h2>
+                <p>Latest 50 items · select a row to inspect</p>
+              </div>
+              <button class="secondary" id="exportButton">↓ Export CSV</button>
+            </div>
+            <div class="log-tools">
+              <div class="filter-buttons" aria-label="Filter inspections">
+                <button class="selected" data-filter="all" aria-pressed="true">
+                  All products</button
+                ><button data-filter="rejected" aria-pressed="false">
+                  Rejected only
+                </button>
+              </div>
+              <label class="search-label"
+                ><span aria-hidden="true">⌕</span
+                ><input
+                  id="search"
+                  type="search"
+                  aria-label="Search item ID or result"
+                  placeholder="Search inspections…"
+              /></label>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Item ID</th>
+                    <th>Time</th>
+                    <th>Result</th>
+                    <th
+                      title="Illustrative rule-based score, not model accuracy"
+                    >
+                      Rule score
+                    </th>
+                    <th>Action</th>
+                    <th><span class="sr-only">Details</span></th>
+                  </tr>
+                </thead>
+                <tbody id="logBody"></tbody>
+              </table>
+            </div>
+            <div class="table-footer">
+              <span id="shownCount">Showing latest inspections</span
+              ><button class="text-button" id="resetButton">
+                ↺ Reset demo session
+              </button>
+            </div>
+          </section>
+
+          <section
+            class="panel calibration-panel"
+            id="calibration"
+            aria-labelledby="calibrationTitle"
+          >
+            <div class="panel-heading">
+              <div>
+                <h2 id="calibrationTitle">Calibration</h2>
+                <p>Fine-tune your next inspection</p>
+              </div>
+              <span id="savedState" class="saved-state">Defaults</span>
+            </div>
+            <div class="calibration-tabs" aria-label="Calibration settings">
+              <button class="selected" data-tab="color" aria-pressed="true">
+                Color</button
+              ><button data-tab="geometry" aria-pressed="false">Geometry</button
+              ><button data-tab="conveyor" aria-pressed="false">
+                Conveyor
+              </button>
+            </div>
+            <div id="calibrationFields"></div>
+            <div class="calibration-hint">
+              <span aria-hidden="true">ⓘ</span>
+              <p>
+                Rules apply to the next items crossing the inspection line.
+                Historical results stay as recorded.
+              </p>
+            </div>
+            <div class="calibration-actions">
+              <button class="primary" id="saveCalibration">Save settings</button
+              ><button class="secondary" id="restoreCalibration">
+                Restore defaults
+              </button>
+            </div>
+            <p class="local-note">Settings are saved only in this browser.</p>
+          </section>
+        </div>
+        <footer>
+          <span
+            ><strong>xBAKE</strong>
+            <span class="footer-separator">/</span> Better quality. Less
+            waste.</span
+          ><span
+            >Open-source computer vision
+            <span class="footer-separator">·</span>
+            <a
+              href="https://github.com/KOKUTBON/xBAKE#quick-start"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Run on your own line ↗</a
+            ></span
+          >
+        </footer>
+      </div>
+    </main>
+    <dialog id="aboutDialog">
+      <div class="dialog-heading">
+        <span class="eyebrow">MEET xBAKE</span
+        ><button class="icon-button" data-close aria-label="Close about dialog">
+          ×
+        </button>
+      </div>
+      <h2>Quality control,<br />fresh from the browser.</h2>
+      <p>
+        xBAKE is an open-source vision system that detects, classifies, and
+        rejects defective baked goods on a conveyor.
+      </p>
+      <div class="about-steps">
+        <div>
+          <b>01</b><strong>Detect</strong
+          ><span>Find each product in the camera frame.</span>
+        </div>
+        <div>
+          <b>02</b><strong>Classify</strong
+          ><span>Evaluate color and shape with transparent rules.</span>
+        </div>
+        <div>
+          <b>03</b><strong>Act</strong
+          ><span>Reject defects and keep an inspection record.</span>
+        </div>
+      </div>
+      <p class="about-disclosure">
+        This standalone demo uses generated images, illustrative measurements,
+        and simulated controls. It does not run OpenCV or ONNX, access a camera,
+        operate hardware, or connect to a production database. The 128 starting
+        records are sample history; new records come from the animated
+        simulation. Rule scores are illustrative, not measured model accuracy.
+      </p>
+      <a
+        class="primary link-button"
+        href="https://github.com/KOKUTBON/xBAKE"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Explore the project ↗</a
+      >
+    </dialog>
+    <dialog id="itemDialog">
+      <div class="dialog-heading">
+        <span class="eyebrow">INSPECTION DETAILS</span
+        ><button
+          class="icon-button"
+          data-close
+          aria-label="Close inspection details"
+        >
+          ×
+        </button>
+      </div>
+      <h2 id="itemTitle">Item details</h2>
+      <div class="item-preview">
+        <img id="itemImage" alt="Synthetic inspected product" /><span
+          id="itemResult"
+        ></span>
+      </div>
+      <dl id="itemFeatures"></dl>
+      <p class="local-note">
+        Synthetic measurements · result recorded at inspection time.
+      </p>
+    </dialog>
+    <dialog id="resetDialog">
+      <div class="dialog-heading">
+        <h2>Start a fresh batch?</h2>
+        <button class="icon-button" data-close aria-label="Close reset dialog">
+          ×
+        </button>
+      </div>
+      <p>
+        This clears the sample history and session counters. Your calibration
+        settings are kept.
+      </p>
+      <div class="dialog-actions">
+        <button class="secondary" data-close>Keep session</button
+        ><button class="primary" id="confirmReset">Reset session</button>
+      </div>
+    </dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <noscript
+      ><div class="noscript">
+        Enable JavaScript to explore the interactive xBAKE demo.
+      </div></noscript
+    >
+  </body>
+</html>

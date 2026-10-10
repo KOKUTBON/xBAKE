@@ -1,0 +1,62 @@
+{
+  "generated": "2026-10-10",
+  "scope": "Dependency metadata observed from committed npm locks and local validation environments. Not a legal clearance or complete binary/container SBOM. Preserve upstream notices and inspect assets separately.",
+  "dependencies": [
+    {
+      "ecosystem": "python",
+      "name": "Pygments",
+      "version": "2.21.0",
+      "license": "BSD-2-Clause",
+      "scope": "local validation environment; may include development/optional dependencies"
+    },
+    {
+      "ecosystem": "python",
+      "name": "iniconfig",
+      "version": "2.3.1",
+      "license": "MIT",
+      "scope": "local validation environment; may include development/optional dependencies"
+    },
+    {
+      "ecosystem": "python",
+      "name": "numpy",
+      "version": "2.5.3",
+      "license": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+      "scope": "local validation environment; may include development/optional dependencies"
+    },
+    {
+      "ecosystem": "python",
+      "name": "opencv-python",
+      "version": "5.0.0.93",
+      "license": "Apache 2.0",
+      "scope": "local validation environment; may include development/optional dependencies"
+    },
+    {
+      "ecosystem": "python",
+      "name": "packaging",
+      "version": "26.3",
+      "license": "Apache-2.0 OR BSD-2-Clause",
+      "scope": "local validation environment; may include development/optional dependencies"
+    },
+    {
+      "ecosystem": "python",
+      "name": "pluggy",
+      "version": "1.6.0",
+      "license": "MIT",
+      "scope": "local validation environment; may include development/optional dependencies"
+    },
+    {
+      "ecosystem": "python",
+      "name": "pytest",
+      "version": "9.1.1",
+      "license": "MIT",
+      "scope": "local validation environment; may include development/optional dependencies"
+    },
+    {
+      "ecosystem": "python",
+      "name": "ruff",
+      "version": "0.17.0",
+      "license": "MIT",
+      "scope": "local validation environment; may include development/optional dependencies"
+    }
+  ]
+}

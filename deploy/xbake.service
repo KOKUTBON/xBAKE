@@ -1,0 +1,26 @@
+# systemd unit for running xBAKE on an edge device.
+# Install:  sudo cp deploy/xbake.service /etc/systemd/system/
+#           sudo systemctl daemon-reload && sudo systemctl enable --now xbake
+# Assumes the project is installed in /opt/xbake with a virtualenv in /opt/xbake/.venv.
+[Unit]
+Description=xBAKE bakery quality inspection
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=xbake
+Group=xbake
+SupplementaryGroups=video gpio dialout
+WorkingDirectory=/opt/xbake
+# Optional: XBAKE_WEB_TOKEN=... and other environment overrides
+EnvironmentFile=-/etc/xbake/xbake.env
+ExecStart=/opt/xbake/.venv/bin/xbake run --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+TimeoutStopSec=15
+SyslogIdentifier=xbake
+
+[Install]
+WantedBy=multi-user.target

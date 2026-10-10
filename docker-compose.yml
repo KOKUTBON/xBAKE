@@ -1,0 +1,20 @@
+services:
+  xbake:
+    build: .
+    container_name: xbake
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data            # SQLite database and defect snapshots
+      - ./config:/app/config        # config.json (created on first save)
+      - ./secrets:/app/secrets:ro   # optional Google service account key
+    devices:
+      - "/dev/video0:/dev/video0"   # USB camera
+    environment:
+      # Protects control endpoints (config changes, rejector test, counter reset)
+      - XBAKE_WEB_TOKEN=${XBAKE_WEB_TOKEN:-}
+    # Raspberry Pi GPIO access (uncomment one):
+    # devices:
+    #   - "/dev/gpiomem:/dev/gpiomem"
+    # privileged: true

@@ -1,0 +1,87 @@
+{
+  "camera": {
+    "source": 0,
+    "brightness": 0,
+    "contrast": 32,
+    "saturation": 60,
+    "hue": 0,
+    "gamma": 100,
+    "auto_wb": 0,
+    "target_width": 640,
+    "target_height": 480
+  },
+  "vision": {
+    "lower_hsv": [
+      0,
+      0,
+      0
+    ],
+    "upper_hsv": [
+      179,
+      255,
+      255
+    ],
+    "morph_op": [
+      3,
+      3
+    ],
+    "morph_cl": [
+      5,
+      5
+    ],
+    "blur": [
+      5,
+      5
+    ],
+    "filter_mode": 0,
+    "min_radius": 30,
+    "max_radius": 120,
+    "roi_x": 0,
+    "roi_y": 0,
+    "roi_w": 400,
+    "roi_h": 400,
+    "norm_resolution": 400
+  },
+  "inspection": {
+    "m_color": 0,
+    "M_color": 95,
+    "undercooked_min_color": 195,
+    "min_circularity": 0.65,
+    "min_aspect_ratio": 0.68,
+    "min_frames_to_reject": 5,
+    "min_frames_to_count": 3,
+    "crop_margin": 0.2,
+    "tracking_distance_factor": 1.2,
+    "max_disappeared": 15,
+    "onnx_model_path": ""
+  },
+  "hardware": {
+    "enabled": false,
+    "driver": "mock",
+    "gpio_pin": 21,
+    "pulse_duration_s": 0.4,
+    "debounce_s": 0.1,
+    "conveyor_speed_px_per_s": 80.0,
+    "rejector_trigger_line_x": 320,
+    "arm_port": "/dev/ttyUSB0",
+    "arm_baudrate": 115200
+  },
+  "storage": {
+    "db_path": "data/xbake.db",
+    "snapshot_dir": "data/snapshots",
+    "save_snapshots": true,
+    "telemetry_interval_seconds": 60,
+    "enable_cloud_sync": false,
+    "google_sheet_name": "xBAKE_Production_Data",
+    "google_creds_json": "secrets/google-service-account.json",
+    "sync_interval_seconds": 120
+  },
+  "web": {
+    "enabled": true,
+    "host": "127.0.0.1",
+    "port": 8000,
+    "stream_fps": 20,
+    "allow_cors": false,
+    "auth_token": ""
+  }
+}

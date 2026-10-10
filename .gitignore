@@ -1,0 +1,118 @@
+# Python build and test artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual environments and environment configuration
+.venv/
+venv/
+env/
+.env
+.env.*
+*.env
+!.env.example
+!.env.sample
+
+# Editors and operating system files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Local configuration (copy config.example.json to create your own)
+config.json
+config/
+*.local.json
+
+# Runtime data: databases, snapshots, exports, recordings
+data/
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+snapshots/
+exports/
+*.csv
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Generated and temporary output
+uploads/
+artifacts/
+outputs/
+reports/
+backups/
+dumps/
+
+# Models (distribute separately)
+*.onnx
+*.pt
+*.pth
+
+# Credentials and secrets
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*credentials*.json
+*creds*.json
+client_secret*.json
+*service-account*.json
+token.json
+settings.yaml
+
+# Logs, temporary files and backups
+*.log
+logs/
+*.tmp
+*.bak
+*.orig
+*~
+*.tsv
+*.parquet
+*.h5
+*.hdf5
+
+# Scratch files, planning notes and drafts
+scratch/
+*notes*.txt
+*notes*.md
+TODO*.md
+PLAN*.md
+
+# AI development tools
+.claude/
+.codex/
+.cursor/
+.windsurf/
+.github/agents/
+
+# Output of tools/make_demo_video.py
+demo/
+
+# Local deployment records and private credentials
+.env.local
+.env.production
+*.pem
+*.key
+*.sqlite
+*.sqlite3
+*.db
+/data/private/
+/backups/
