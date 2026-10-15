@@ -1,0 +1,34 @@
+name: Dashboard demo checks
+
+on:
+  push:
+    paths:
+      [
+        "site/**",
+        "tests/demo.test.cjs",
+        ".github/workflows/demo-checks.yml",
+        ".github/workflows/pages.yml",
+      ]
+  pull_request:
+    paths:
+      [
+        "site/**",
+        "tests/demo.test.cjs",
+        ".github/workflows/demo-checks.yml",
+        ".github/workflows/pages.yml",
+      ]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+      - run: node --check site/engine.js
+      - run: node --check site/app.js
+      - run: node --test tests/demo.test.cjs

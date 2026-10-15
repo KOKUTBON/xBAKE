@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>xBAKE Dashboard</title>
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --card: #ffffff;
+      --border: #dde1e7;
+      --text: #1d232b;
+      --muted: #5f6b7a;
+      --accent: #d9531e;
+      --accent-text: #ffffff;
+      --good: #1b873f;
+      --burnt: #c62828;
+      --raw: #9a6b00;
+      --deformed: #c25e00;
+      --btn-sec: #e6e9ee;
+      --btn-sec-text: #1d232b;
+      --stream-bg: #0b0d10;
+      --shadow: 0 1px 2px rgba(0,0,0,.06);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #121418; --card: #1c2027; --border: #2a313d; --text: #e0e6ed; --muted: #8b9bb4;
+        --accent: #ff6b35; --good: #00c864; --burnt: #ff5a3c; --raw: #ffd600; --deformed: #ff9f43;
+        --btn-sec: #2f3a45; --btn-sec-text: #e0e6ed; --shadow: none;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #121418; --card: #1c2027; --border: #2a313d; --text: #e0e6ed; --muted: #8b9bb4;
+      --accent: #ff6b35; --good: #00c864; --burnt: #ff5a3c; --raw: #ffd600; --deformed: #ff9f43;
+      --btn-sec: #2f3a45; --btn-sec-text: #e0e6ed; --shadow: none;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    [hidden] { display: none !important; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; font-size: 14px; }
+    header { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 700; }
+    .logo-mark { width: 42px; height: 42px; border-radius: 8px; object-fit: cover; }
+    .header-right { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .85rem; flex-wrap: wrap; min-width: 0; }
+    #sourceInfo { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .badge { padding: 3px 10px; border-radius: 12px; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; background: var(--btn-sec); }
+    .badge.ok { color: var(--good); } .badge.warn { color: var(--raw); } .badge.err { color: var(--burnt); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .card, .panel { background: var(--card); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow); }
+    .card { padding: 12px 14px; }
+    .card-title { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+    .card-val { font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .card-sub { font-size: .78rem; color: var(--muted); }
+    .main-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; }
+    @media (max-width: 1024px) { .main-layout { grid-template-columns: minmax(0, 1fr); } }
+    .panel { padding: 14px; margin-bottom: 16px; }
+    .panel-head { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .panel-head h3 { font-size: 1rem; }
+    .stream-wrap { background: var(--stream-bg); border-radius: 6px; overflow: hidden; position: relative; min-height: 200px; display: flex; align-items: center; justify-content: center; }
+    .stream-img { width: 100%; height: auto; max-height: 70vh; object-fit: contain; display: block; }
+    .stream-msg { position: absolute; color: #c9d1db; font-size: .9rem; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
+    button, .btn { background: var(--accent); color: var(--accent-text); border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: .85rem; text-decoration: none; display: inline-block; }
+    button:hover, .btn:hover { filter: brightness(1.08); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    button.sec, .btn.sec { background: var(--btn-sec); color: var(--btn-sec-text); }
+    .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .seg button { border-radius: 0; background: transparent; color: var(--text); font-weight: 500; }
+    .seg button.active { background: var(--accent); color: var(--accent-text); }
+    .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+    .tabs button { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 5px 10px; font-weight: 500; }
+    .tabs button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .field { margin-bottom: 11px; }
+    .field-head { display: flex; justify-content: space-between; gap: 8px; font-size: .82rem; margin-bottom: 3px; }
+    .field-head b { font-variant-numeric: tabular-nums; }
+    .field-help { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+    input[type=range] { width: 100%; accent-color: var(--accent); }
+    select, input[type=password], input[type=text] { width: 100%; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: .85rem; }
+    .dirty { color: var(--raw); font-size: .78rem; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { color: var(--muted); font-weight: 600; }
+    td.num { font-variant-numeric: tabular-nums; }
+    tr.clickable { cursor: pointer; } tr.clickable:hover { background: var(--bg); }
+    .tag { font-weight: 700; font-size: .72rem; text-transform: uppercase; }
+    .tag.good { color: var(--good); } .tag.burnt { color: var(--burnt); } .tag.undercooked { color: var(--raw); } .tag.deformed { color: var(--deformed); }
+    .muted { color: var(--muted); }
+    label.inline { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--muted); cursor: pointer; }
+    #toast { position: fixed; bottom: 16px; right: 16px; left: 16px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; z-index: 20; }
+    .toast { background: var(--card); color: var(--text); border: 1px solid var(--border); border-left: 4px solid var(--good); padding: 10px 14px; border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,.2); font-size: .85rem; max-width: 420px; }
+    .toast.err { border-left-color: var(--burnt); }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+    .modal.open { display: flex; }
+    .modal-box { background: var(--card); border-radius: 8px; padding: 16px; max-width: 900px; width: 100%; max-height: 90vh; overflow: auto; }
+    .modal-box img { width: 100%; height: auto; border-radius: 4px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img class="logo-mark" src="/logo.png" alt="xBAKE logo">
+      <span class="badge" id="statusBadge">Connecting</span>
+    </div>
+    <div class="header-right">
+      <span id="sourceInfo"></span>
+      <span id="actuatorInfo"></span>
+      <button class="sec" id="btnAuth" hidden>🔑 Token</button>
+      <button class="sec" id="btnTheme" title="Toggle light/dark theme">◐</button>
+      <span id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <div class="grid" id="kpis">
+    <div class="card"><div class="card-title">Inspected</div><div class="card-val" id="kInspected">0</div><div class="card-sub" id="kUptime">uptime 0s</div></div>
+    <div class="card"><div class="card-title">Good</div><div class="card-val" style="color:var(--good)" id="kGood">0</div><div class="card-sub" id="kGoodPct">100% OK</div></div>
+    <div class="card"><div class="card-title">Burnt</div><div class="card-val" style="color:var(--burnt)" id="kBurnt">0</div></div>
+    <div class="card"><div class="card-title">Undercooked</div><div class="card-val" style="color:var(--raw)" id="kRaw">0</div></div>
+    <div class="card"><div class="card-title">Deformed</div><div class="card-val" style="color:var(--deformed)" id="kDeformed">0</div></div>
+    <div class="card"><div class="card-title">Defect rate</div><div class="card-val" id="kRate">0%</div><div class="card-sub" id="kRejected">0 rejected</div></div>
+    <div class="card"><div class="card-title">Throughput</div><div class="card-val" id="kThroughput">0</div><div class="card-sub">items / min</div></div>
+    <div class="card"><div class="card-title">Pipeline FPS</div><div class="card-val" id="kFps">0.0</div><div class="card-sub" id="kCamFps">camera 0.0</div></div>
+  </div>
+
+  <div class="main-layout">
+    <div>
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Live inspection</h3>
+          <div class="seg" role="group" aria-label="Stream view">
+            <button class="active" data-view="annotated">Annotated</button>
+            <button data-view="mask">Mask</button>
+          </div>
+        </div>
+        <div class="stream-wrap">
+          <img id="stream" class="stream-img" alt="Live conveyor stream">
+          <span class="stream-msg" id="streamMsg">Waiting for video…</span>
+        </div>
+        <div class="toolbar">
+          <button id="btnTest">⚡ Test rejector</button>
+          <a class="btn sec" id="btnFrame" href="/frame.jpg" download="xbake_frame.jpg">📷 Save frame</a>
+          <button class="sec" id="btnReset">↺ Reset counters</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Inspection log</h3>
+          <div class="toolbar" style="margin:0">
+            <label class="inline"><input type="checkbox" id="chkDefects" checked> Rejected only</label>
+            <a class="btn sec" href="/api/export.csv">⬇ Export CSV</a>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Item</th><th>Time</th><th>Result</th><th>Conf.</th><th>Color</th><th>Circ.</th><th>Action</th></tr></thead>
+            <tbody id="logBody"><tr><td colspan="8" class="muted" style="text-align:center">No inspections recorded yet</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card-sub" id="dbSummary" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Calibration</h3>
+          <span class="dirty" id="dirtyFlag" hidden>● unsaved changes</span>
+        </div>
+        <div class="tabs" id="tabs"></div>
+        <div id="fields"></div>
+        <div class="toolbar">
+          <button id="btnSave">💾 Save to config file</button>
+          <button class="sec" id="btnReload">⟳ Reload values</button>
+        </div>
+        <div class="card-sub" id="configPath" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="snapModal">
+    <div class="modal-box">
+      <div class="panel-head" style="margin-bottom:0"><h3 id="snapTitle">Snapshot</h3><button class="sec" id="snapClose">Close</button></div>
+      <img id="snapImg" alt="Defect snapshot">
+    </div>
+  </div>
+
+  <div class="modal" id="authModal">
+    <div class="modal-box" style="max-width:420px">
+      <div class="panel-head"><h3>Access token</h3></div>
+      <p class="muted" style="margin-bottom:10px">This dashboard requires a token for control actions. It is stored only in this browser.</p>
+      <input type="password" id="authInput" placeholder="Paste token" autocomplete="off">
+      <div class="toolbar"><button id="authSave">Save</button><button class="sec" id="authCancel">Cancel</button></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+  (function () {
+    'use strict';
+    const $ = (id) => document.getElementById(id);
+
+    // ---------- storage helpers (never throw) ----------
+    const store = {
+      get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+      set(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+    };
+
+    // ---------- theme ----------
+    const savedTheme = store.get('xbake-theme');
+    if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    $('btnTheme').onclick = () => {
+      const cur = document.documentElement.dataset.theme ||
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      store.set('xbake-theme', next);
+    };
+
+    // ---------- toast ----------
+    function toast(msg, isErr) {
+      const el = document.createElement('div');
+      el.className = 'toast' + (isErr ? ' err' : '');
+      el.textContent = msg;
+      $('toast').appendChild(el);
+      setTimeout(() => el.remove(), isErr ? 5000 : 2500);
+    }
+
+    // ---------- API ----------
+    let authToken = store.get('xbake-token') || '';
+    async function api(path, opts) {
+      opts = opts || {};
+      const headers = Object.assign({}, opts.headers || {});
+      if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
+      if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+      const res = await fetch(path, {
+        method: opts.method || 'GET',
+        headers,
+        body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+        cache: 'no-store'
+      });
+      let data = null;
+      const ctype = res.headers.get('Content-Type') || '';
+      if (ctype.includes('application/json')) data = await res.json();
+      if (res.status === 401) { openAuth(); throw new Error('Authorization required'); }
+      if (!res.ok) throw new Error((data && data.error) || ('HTTP ' + res.status));
+      return data;
+    }
+    const post = (path, body) => api(path, { method: 'POST', body: body === undefined ? {} : body });
+
+    // ---------- auth modal ----------
+    function openAuth() { $('authInput').value = authToken; $('authModal').classList.add('open'); $('authInput').focus(); }
+    $('btnAuth').onclick = openAuth;
+    $('authCancel').onclick = () => $('authModal').classList.remove('open');
+    $('authSave').onclick = () => {
+      authToken = $('authInput').value.trim();
+      store.set('xbake-token', authToken || null);
+      $('authModal').classList.remove('open');
+      toast(authToken ? 'Token saved' : 'Token cleared');
+    };
+    $('authInput').onkeydown = (e) => { if (e.key === 'Enter') $('authSave').click(); };
+
+    // ---------- clock ----------
+    const tick = () => { $('clock').textContent = new Date().toLocaleTimeString(); };
+    setInterval(tick, 1000); tick();
+
+    // ---------- stream ----------
+    let view = 'annotated';
+    const img = $('stream');
+    function connectStream() {
+      img.src = '/stream?view=' + view + '&t=' + Date.now();
+    }
+    img.onload = () => { $('streamMsg').hidden = true; };
+    img.onerror = () => {
+      $('streamMsg').hidden = false;
+      $('streamMsg').textContent = 'Stream unavailable, retrying…';
+      setTimeout(connectStream, 3000);
+    };
+    document.querySelectorAll('.seg button').forEach((b) => {
+      b.onclick = () => {
+        document.querySelectorAll('.seg button').forEach((x) => x.classList.toggle('active', x === b));
+        view = b.dataset.view;
+        $('btnFrame').href = '/frame.jpg?view=' + view;
+        connectStream();
+      };
+    });
+    connectStream();
+
+    // ---------- metrics & status ----------
+    function fmtDuration(s) {
+      s = Math.floor(s);
+      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+      return h ? `${h}h ${m}m` : m ? `${m}m ${sec}s` : `${sec}s`;
+    }
+    async function refreshMetrics() {
+      try {
+        const m = await api('/api/metrics');
+        $('kInspected').textContent = m.total_inspected;
+        $('kUptime').textContent = 'uptime ' + fmtDuration(m.uptime_seconds);
+        $('kGood').textContent = m.total_good;
+        $('kGoodPct').textContent = m.good_rate_pct + '% OK';
+        $('kBurnt').textContent = m.total_burnt;
+        $('kRaw').textContent = m.total_undercooked;
+        $('kDeformed').textContent = m.total_deformed;
+        $('kRate').textContent = m.defect_rate_pct + '%';
+        $('kRejected').textContent = m.total_rejected + ' rejected';
+        $('kThroughput').textContent = m.throughput_per_minute;
+        $('kFps').textContent = m.current_fps.toFixed(1);
+      } catch (e) { setBadge('Offline', 'err'); }
+    }
+    function setBadge(text, cls) { const b = $('statusBadge'); b.textContent = text; b.className = 'badge ' + cls; }
+    async function refreshStatus() {
+      try {
+        const s = await api('/api/status');
+        if (s.camera.finished) setBadge('Video ended', 'warn');
+        else if (s.camera.connected) setBadge('Online', 'ok');
+        else setBadge('No camera', 'warn');
+        const src = String(s.camera.source);
+        $('sourceInfo').textContent = 'Source: ' + (src.split(/[\\/]/).pop() || src);
+        $('sourceInfo').title = src;
+        $('kCamFps').textContent = 'camera ' + Number(s.camera.fps).toFixed(1);
+        $('actuatorInfo').textContent = 'Actuator: ' + s.actuator.type.replace('Actuator', '') +
+          (s.actuator.active ? ' (active)' : '') + ' · ' + s.classifier;
+        $('btnAuth').hidden = !s.auth_required;
+      } catch (e) { setBadge('Offline', 'err'); }
+    }
+
+    // ---------- inspection log ----------
+    function fmtTime(ts) { return new Date(ts * 1000).toLocaleTimeString(); }
+    async function refreshLog() {
+      try {
+        const defects = $('chkDefects').checked ? 1 : 0;
+        const rows = await api('/api/recent?limit=25&defects=' + defects);
+        const body = $('logBody');
+        body.textContent = '';
+        if (!rows.length) {
+          const tr = body.insertRow(); const td = tr.insertCell();
+          td.colSpan = 8; td.className = 'muted'; td.style.textAlign = 'center';
+          td.textContent = defects ? 'No rejected items yet' : 'No inspections recorded yet';
+          return;
+        }
+        rows.forEach((r) => {
+          const tr = body.insertRow();
+          const cells = [r.id, '#' + r.item_id, fmtTime(r.timestamp), null,
+            Number(r.confidence).toFixed(2), Number(r.avg_color).toFixed(0), Number(r.circularity).toFixed(2),
+            r.rejected ? 'Rejected' : 'Passed'];
+          cells.forEach((v, i) => {
+            const td = tr.insertCell();
+            if (i === 3) {
+              const s = document.createElement('span');
+              s.className = 'tag ' + r.defect_type; s.textContent = r.defect_type; td.appendChild(s);
+            } else { td.textContent = v; }
+            if (i >= 4 && i <= 6) td.className = 'num';
+          });
+          if (r.snapshot_path) {
+            tr.className = 'clickable'; tr.title = 'View snapshot';
+            tr.onclick = () => openSnapshot(r);
+          }
+        });
+      } catch (e) {}
+    }
+    async function refreshSummary() {
+      try {
+        const s = await api('/api/summary');
+        const parts = Object.entries(s.by_defect_type).map(([k, v]) => `${k} ${v}`);
+        $('dbSummary').textContent = s.total_records
+          ? `Database: ${s.total_records} records (${parts.join(', ')})`
+          : 'Database: empty';
+      } catch (e) {}
+    }
+    $('chkDefects').onchange = refreshLog;
+    const refreshRecords = () => { refreshLog(); refreshSummary(); };
+    function openSnapshot(r) {
+      $('snapTitle').textContent = `Item #${r.item_id} · ${r.defect_type} · ${fmtTime(r.timestamp)}`;
+      $('snapImg').src = '/api/snapshot/' + r.id;
+      $('snapModal').classList.add('open');
+    }
+    $('snapClose').onclick = () => $('snapModal').classList.remove('open');
+    document.querySelectorAll('.modal').forEach((m) => m.addEventListener('click', (e) => {
+      if (e.target === m) m.classList.remove('open');
+    }));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') document.querySelectorAll('.modal.open').forEach((m) => m.classList.remove('open'));
+    });
+
+    // ---------- actions ----------
+    $('btnTest').onclick = async () => {
+      $('btnTest').disabled = true;
+      try {
+        const r = await post('/api/rejector/test');
+        toast(r.triggered ? 'Rejector pulse sent' : 'Rejector busy, try again', !r.triggered);
+      } catch (e) { toast('Rejector test failed: ' + e.message, true); }
+      finally { setTimeout(() => { $('btnTest').disabled = false; }, 600); }
+    };
+    $('btnReset').onclick = async () => {
+      if (!confirm('Reset the live counters? Recorded inspections in the database are kept.')) return;
+      try { await post('/api/metrics/reset'); toast('Counters reset'); refreshMetrics(); }
+      catch (e) { toast('Reset failed: ' + e.message, true); }
+    };
+
+    // ---------- calibration ----------
+    // [section, key, label, help, {component index for HSV/kernel}]
+    const TABS = {
+      'Inspection': [
+        ['inspection', 'M_color', 'Burnt: max intensity', 'Mean intensity at or below this is burnt'],
+        ['inspection', 'm_color', 'Burnt: min intensity', 'Lower bound of the burnt window'],
+        ['inspection', 'undercooked_min_color', 'Undercooked: min intensity', 'Mean intensity at or above this is undercooked'],
+        ['inspection', 'min_circularity', 'Min circularity', '4π·area / perimeter², 1.0 = perfect circle', null, 0.01],
+        ['inspection', 'min_aspect_ratio', 'Min aspect ratio', 'Short side / long side of bounding box', null, 0.01],
+        ['inspection', 'min_frames_to_reject', 'Frames to confirm defect', 'Consecutive defective frames before rejecting'],
+        ['inspection', 'min_frames_to_count', 'Frames to count item', 'Filters short-lived noise detections']
+      ],
+      'Segmentation': [
+        ['vision', 'lower_hsv', 'Lower H', 'Hue 0-179', 0],
+        ['vision', 'upper_hsv', 'Upper H', '', 0],
+        ['vision', 'lower_hsv', 'Lower S', 'Saturation 0-255', 1],
+        ['vision', 'upper_hsv', 'Upper S', '', 1],
+        ['vision', 'lower_hsv', 'Lower V', 'Value 0-255', 2],
+        ['vision', 'upper_hsv', 'Upper V', '', 2],
+        ['vision', 'filter_mode', 'Filter mode', '', 'select'],
+        ['vision', 'morph_op', 'Opening kernel', 'Removes small specks'],
+        ['vision', 'morph_cl', 'Closing kernel', 'Fills small holes'],
+        ['vision', 'blur', 'Blur kernel', 'Gaussian blur size (forced odd)']
+      ],
+      'Geometry': [
+        ['vision', 'min_radius', 'Min radius', 'Relative to ROI height on a 0-400 scale'],
+        ['vision', 'max_radius', 'Max radius', 'Relative to ROI height on a 0-400 scale'],
+        ['vision', 'roi_x', 'ROI left', '0-400 scale of frame width'],
+        ['vision', 'roi_y', 'ROI top', '0-400 scale of frame height'],
+        ['vision', 'roi_w', 'ROI width', ''],
+        ['vision', 'roi_h', 'ROI height', '']
+      ],
+      'Camera': [
+        ['camera', 'brightness', 'Brightness', 'Live cameras only; support varies by driver'],
+        ['camera', 'contrast', 'Contrast', ''],
+        ['camera', 'saturation', 'Saturation', ''],
+        ['camera', 'hue', 'Hue', ''],
+        ['camera', 'gamma', 'Gamma', ''],
+        ['camera', 'auto_wb', 'Auto white balance', '', 'toggle']
+      ],
+      'Conveyor': [
+        ['hardware', 'conveyor_speed_px_per_s', 'Belt speed (px/s)', 'Used to delay the pulse until the item reaches the reject line', null, 1],
+        ['hardware', 'rejector_trigger_line_x', 'Reject line x (px)', 'Horizontal pixel position of the rejector'],
+        ['hardware', 'pulse_duration_s', 'Pulse duration (s)', '', null, 0.01],
+        ['hardware', 'debounce_s', 'Gap between pulses (s)', 'Idle time enforced between consecutive pulses', null, 0.05]
+      ]
+    };
+    const FILTER_MODES = ['Morphology + blur', 'Morphology only', 'Blur only'];
+
+    let cfg = null, tunable = null, activeTab = store.get('xbake-tab') || 'Inspection';
+    if (!TABS[activeTab]) activeTab = 'Inspection';
+    const pending = {};
+    let flushTimer = null;
+
+    function setDirty(d) { $('dirtyFlag').hidden = !d; }
+
+    function queueUpdate(section, key, value) {
+      pending[section] = pending[section] || {};
+      pending[section][key] = value;
+      clearTimeout(flushTimer);
+      flushTimer = setTimeout(flushUpdates, 250);
+    }
+    async function flushUpdates() {
+      clearTimeout(flushTimer);
+      flushTimer = null;
+      const body = JSON.parse(JSON.stringify(pending));
+      Object.keys(pending).forEach((k) => delete pending[k]);
+      if (!Object.keys(body).length) return;
+      try { await post('/api/config', body); setDirty(true); }
+      catch (e) { toast('Update rejected: ' + e.message, true); loadConfig(); }
+    }
+
+    function sliderRange(section, key, comp) {
+      const t = tunable[section][key];
+      if (t.kind === 'hsv') return comp === 0 ? [0, 179] : [0, 255];
+      if (t.kind === 'kernel') return [1, 31];
+      let [lo, hi] = [t.min, t.max];
+      if (key === 'conveyor_speed_px_per_s') hi = 1000;
+      if (key === 'rejector_trigger_line_x') hi = Math.max(1920, cfg.camera.target_width || 0);
+      if (key === 'pulse_duration_s') hi = 3;
+      if (key === 'debounce_s') hi = 2;
+      if (key === 'contrast' || key === 'saturation') lo = Math.max(lo, 0);
+      if (key === 'hue') [lo, hi] = [-180, 180];
+      return [lo, hi];
+    }
+
+    function renderTabs() {
+      const tabs = $('tabs'); tabs.textContent = '';
+      Object.keys(TABS).forEach((name) => {
+        const b = document.createElement('button');
+        b.textContent = name; b.className = name === activeTab ? 'active' : '';
+        b.onclick = () => { activeTab = name; store.set('xbake-tab', name); renderTabs(); renderFields(); };
+        tabs.appendChild(b);
+      });
+    }
+
+    function renderFields() {
+      const root = $('fields'); root.textContent = '';
+      if (!cfg) return;
+      TABS[activeTab].forEach(([section, key, label, help, mode, step]) => {
+        if (!tunable[section] || !tunable[section][key]) return;
+        const kind = tunable[section][key].kind;
+        const wrap = document.createElement('div'); wrap.className = 'field';
+        const head = document.createElement('div'); head.className = 'field-head';
+        const lab = document.createElement('span'); lab.textContent = label;
+        const val = document.createElement('b');
+        head.append(lab, val); wrap.appendChild(head);
+        const current = cfg[section][key];
+
+        if (mode === 'select') {
+          const sel = document.createElement('select');
+          FILTER_MODES.forEach((txt, i) => { const o = new Option(txt, i); sel.add(o); });
+          sel.value = current;
+          sel.onchange = () => { cfg[section][key] = Number(sel.value); queueUpdate(section, key, Number(sel.value)); };
+          wrap.appendChild(sel);
+        } else if (mode === 'toggle') {
+          const chk = document.createElement('input'); chk.type = 'checkbox'; chk.checked = !!current;
+          val.textContent = current ? 'on' : 'off';
+          chk.onchange = () => { const v = chk.checked ? 1 : 0; val.textContent = v ? 'on' : 'off'; cfg[section][key] = v; queueUpdate(section, key, v); };
+          wrap.appendChild(chk);
+        } else {
+          const comp = typeof mode === 'number' ? mode : null;
+          const [lo, hi] = sliderRange(section, key, comp);
+          const input = document.createElement('input'); input.type = 'range';
+          input.min = lo; input.max = hi;
+          input.step = step || (kind === 'float' ? 0.01 : kind === 'kernel' ? 2 : 1);
+          let v = kind === 'hsv' ? current[comp] : kind === 'kernel' ? current[0] : current;
+          input.value = v;
+          val.textContent = kind === 'float' ? Number(v).toFixed(2) : v;
+          input.oninput = () => {
+            const n = Number(input.value);
+            val.textContent = kind === 'float' ? Number(n).toFixed(2) : n;
+            if (kind === 'hsv') {
+              const arr = cfg[section][key].slice(); arr[comp] = n; cfg[section][key] = arr;
+              queueUpdate(section, key, arr);
+            } else if (kind === 'kernel') {
+              cfg[section][key] = [n, n]; queueUpdate(section, key, [n, n]);
+            } else {
+              cfg[section][key] = n; queueUpdate(section, key, n);
+            }
+          };
+          wrap.appendChild(input);
+        }
+        if (help) { const h = document.createElement('div'); h.className = 'field-help'; h.textContent = help; wrap.appendChild(h); }
+        root.appendChild(wrap);
+      });
+    }
+
+    async function loadConfig() {
+      try {
+        const r = await api('/api/config');
+        cfg = r.config; tunable = r.tunable;
+        $('configPath').textContent = 'Config file: ' + (r.path || 'config.json');
+        renderTabs(); renderFields();
+      } catch (e) { toast('Could not load configuration: ' + e.message, true); }
+    }
+    $('btnReload').onclick = () => { loadConfig(); toast('Values reloaded from server'); };
+    $('btnSave').onclick = async () => {
+      try {
+        await flushUpdates();
+        const r = await post('/api/config/save');
+        setDirty(false);
+        toast('Saved to ' + r.saved);
+      } catch (e) { toast('Save failed: ' + e.message, true); }
+    };
+
+    // ---------- polling ----------
+    loadConfig();
+    refreshStatus(); refreshMetrics(); refreshLog(); refreshSummary();
+    setInterval(refreshMetrics, 1500);
+    setInterval(refreshStatus, 3000);
+    setInterval(refreshRecords, 3000);
+  })();
+  </script>
+</body>
+</html>

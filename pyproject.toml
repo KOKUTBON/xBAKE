@@ -1,0 +1,91 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xbake"
+version = "2.0.0"
+description = "Open-source computer vision quality control for bakery conveyor lines: detect, classify, and reject burnt, undercooked, and deformed products."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Rei Doda"}
+]
+keywords = [
+    "computer-vision",
+    "quality-control",
+    "opencv",
+    "bakery",
+    "food-inspection",
+    "conveyor-sorting",
+    "defect-detection",
+    "raspberry-pi",
+    "edge-ai",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "numpy>=1.21.0",
+    "opencv-python>=4.5.0",
+]
+
+[project.optional-dependencies]
+cloud = [
+    "gspread>=5.0.0",
+    "google-auth>=2.0.0",
+]
+hardware = [
+    "gpiozero>=1.6.0; sys_platform == 'linux'",
+    "pyserial>=3.5",
+]
+ai = [
+    "onnxruntime>=1.15.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "ruff>=0.5.0",
+]
+all = [
+    "xbake[cloud,hardware,ai,dev]"
+]
+
+[project.urls]
+Homepage = "https://kokutbon.github.io/xBAKE/"
+Issues = "https://github.com/KOKUTBON/xBAKE/issues"
+
+[project.scripts]
+xbake = "xbake.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+xbake = ["web/templates/*.html", "web/static/*.png"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["xbake", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+pythonpath = ["src", "."]
